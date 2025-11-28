@@ -1,0 +1,371 @@
+Welcome to OCD Permitting
+SIGN-IN
+HELP
+Searches
+Cases & Hearings
+Facilities
+Incidents
+Operators
+Pits & Containments
+Spills (To Be Removed)
+Wells
+Operator Data
+Action Status
+C-115 Reports
+Compliance
+Natural Gas Waste Reports
+Production Reports
+Water Use Reports
+Weekly Activity
+Well Information
+Hearing Fee Application
+Request for Hearing
+Request for Continuance
+OCD Permitting
+Home
+Searches
+Wells
+Well Details
+30-015-25330 BASS 3 FEDERAL #001 [1772]
+General Well Information
+Operator: [1801] BEPCO, LP
+Status: Plugged, Site Released
+Well Type: Oil
+Work Type: New
+
+Direction: Vertical
+Multi-Lateral: No
+Mineral Owner: Federal
+Surface Owner: Federal
+Surface Location: P-03-22S-28E      230 FSL      1090 FEL
+Lat/Long: 32.4154167,-104.0703049 NAD83
+
+GL Elevation:
+KB Elevation:
+DF Elevation:
+
+Sing/Mult Compl: Single
+Potash Waiver: False
+
+
+Proposed Formation and/or Notes
+
+
+Depths
+Proposed: 0
+Measured Vertical Depth: 99999
+True Vertical Depth: 99999
+Plugback Measured: 0
+
+
+Formation Tops
+Formation	Top	Producing	Method Obtained
+
+
+Event Dates
+Initial APD Approval: 10/03/1984
+Most Recent APD Approval: 10/03/1984
+APD Cancellation: 
+APD Extension Approval: 
+Spud: 
+Approved Temporary Abandonment: 
+Shut In: 
+Plug and Abandoned Intent Received: 
+Well Plugged: 03/15/2002
+Site Release: 
+Last Inspection: 01/05/2006
+
+Current APD Expiration: 10/03/1986
+
+
+Gas Capture Plan Received: 
+TA Expiration: 
+
+
+PNR Expiration: 
+Last MIT/BHT: 
+
+
+History
+Effective Date	Property	Well Number	Operator	C-101 Work Type	Well Type	Well Status	Apd Cancelled	Plug Date
+10/03/1984	[1772] BASS 3 FEDERAL	#001	[1801] BEPCO, LP	New	Oil	Plugged, Site Released		03/15/2002
+
+
+Comments
+
+
+
+
+Pits & Containments
+No Pits Found
+Id	Name	Rule	Status	(Capacity) Type	Registration	
+Inspection
+Before *
+	Earliest Effective
+Commencement	Last Effective
+Cessation	Inspection
+After *	Closure
+Report	Reclamation
+Report	Restoration
+Complete
+
+
+Casing
+
+No Casing Found
+
+
+
+Well Completions
+
+
+[33725]  INDIAN DRAW; DELAWARE, EAST
+Status: Zone Permanently Plugged
+Last Produced: 08/01/2001
+Bottomhole Location: P-03-22S-28E      230 FSL      1090 FEL
+Lat/Long:
+Acreage:     
+
+DHC: No
+
+Consolidation Code:
+Production Method: Pumping
+
+
+
+Well Test Data
+Production Test:
+Flowing Tubing Pressure:0 psi
+Choke Size:0.000 inches
+Gas Volume: 0.0 MCF
+Gas-Oil Ratio:0 Kcf / bbl
+Disposition of Gas:
+
+Test Length:0 hours
+Flowing Casing Pressure:0 psi
+Testing Method:
+Oil Volume: 0.0 bbls
+Oil Gravity:0.0 Corr. API
+Water Volume: 0.0 bbls
+
+
+
+Perforations
+Date	Top Measured Depth
+(Where Completion Enters Formation)	Bottom Measured Depth
+(End of Lateral)	Top Vertical Depth	Bottom Vertical Depth
+
+
+Notes
+
+
+Event Dates
+Initial Effective/Approval:10/01/1985
+Most Recent Approval:03/15/2002
+Confidential Requested On:
+Test Allowable Approval:
+TD Reached:
+Deviation Report Received:No
+Directional Survey Run:No
+Directional Survey Received:No
+First Oil Production:10/01/1985
+First Injection:
+Ready to Produce:
+C-104 Approval:
+Plug Back:
+Authorization Revoked Start:
+
+
+
+TA Expiration:
+Confidential Until:
+Test Allowable End:
+DHC:
+Rig Released:
+Logs Received:No
+Closure Pit Plat Received:
+First Gas Production:10/01/1985
+
+Completion Report Received:
+New Well C-104 Approval:
+
+Revoked Until:
+
+Well Completion History
+Effective Date	Property	Well Number	Operator	Completion Status	TA Expiration Date
+03/15/2002	[1772] BASS 3 FEDERAL	#001	[1801] BEPCO, LP	Zone Permanently Plugged	
+10/01/1985	[1772] BASS 3 FEDERAL	#001	[1801] BEPCO, LP		
+
+
+Financial Assurance
+Please login to review the financial assurance associated with this well.
+
+
+Compliance
+
+Note that Financial Assurance and Inactive Well Compliance are documented in separate reports (Inactive Well Report, Financial Assurance Report).
+
+Also note that some compliance issues are addressed at the operator level so not listed under each well.
+
+
+
+cMLB1203338368
+Violation Source:Incident, Spill or Release
+Date of Violation:02/02/2012
+Compliance Required:03/02/2012
+
+
+
+Resolved:08/04/2014
+
+
+Notes
+C-141 tracking 2RP-996 closed 8/4/14
+
+
+Actions/Events
+Event Date	Category	Type
+08/04/2014	Corrective Actions	Approved Plan (Remediation/Compliance)
+02/02/2012	Enforcements	Pollution and Contamination
+
+
+cMLB1203928371
+Violation Source:Incident, Spill or Release
+Date of Violation:02/08/2012
+Compliance Required:03/08/2012
+
+
+
+Resolved:08/04/2014
+
+
+Notes
+C-141 tracking 2RP-997 closed 8/4/14
+
+
+Actions/Events
+Event Date	Category	Type
+08/04/2014	Corrective Actions	Approved Plan (Remediation/Compliance)
+02/08/2012	Enforcements	Pollution and Contamination
+
+
+cMLB1211537669
+Violation Source:Incident, Spill or Release
+Date of Violation:04/24/2012
+Compliance Required:05/24/2012
+
+
+
+Resolved:08/04/2014
+
+
+Notes
+C-141 tracking 2RP-1102 closed 8/4/14
+
+
+Actions/Events
+Event Date	Category	Type
+08/04/2014	Corrective Actions	Approved Plan (Remediation/Compliance)
+04/24/2012	Enforcements	Pollution and Contamination
+
+
+cMLB1211539187
+Violation Source:Incident, Spill or Release
+Date of Violation:04/24/2012
+Compliance Required:05/24/2012
+
+
+
+Resolved:08/04/2014
+
+
+Notes
+C-141 tracking 2RP-1103 closed 8/4/14
+
+
+Actions/Events
+Event Date	Category	Type
+08/04/2014	Corrective Actions	Approved Plan (Remediation/Compliance)
+04/24/2012	Enforcements	Pollution and Contamination
+
+
+Reported Releases
+
+The reported release volumes are sourced from C-141 submissions.
+
+Show All Reported Releases
+Earliest Reported Release in OCD Records: 01/03/2012 Last: 04/03/2012
+  	Release Volumes	Additional Details
+ 	BBLS	LBS	MCF	UNK	Type	Product	Severity	Status
+2012 (4)	390	0	0	0	 
+Grand Total:	390	0	0	0	 
+
+
+
+
+Orders
+Please login to review the orders associated with this well.
+
+
+Production / Injection
+
+The production & injection volumes are sourced from monthly production reports (C-115) submissions.
+
+Show All Production Export to Excel
+Earliest Production in OCD Records: 12/1992 Last 8/2001
+  	Production	Injection
+Time Frame	Oil (BBLS)	Gas (MCF)	Water (BBLS)	Days P/I	Water (BBLS)	Co2 (MCF)	Gas (MCF)	Other	Pressure
+1992 Cumulative	23,918	7,268	320,918	99	0	0	0	0	N/A
+1993	2,154	663	32,990	365	0	0	0	0	N/A
+1994	1,279	394	36,205	365	0	0	0	0	N/A
+1995	729	224	14,422	176	0	0	0	0	N/A
+1996	0	0	0	0	0	0	0	0	N/A
+1997	0	0	0	0	0	0	0	0	N/A
+1998	0	0	0	0	0	0	0	0	N/A
+1999	0	0	0	0	0	0	0	0	N/A
+2000	0	0	0	0	0	0	0	0	N/A
+2001	1	0	0	0	0	0	0	0	N/A
+2002	0	0	0	0	0	0	0	0	N/A
+Grand Total:	28,081	8,549	404,535	1,005	0	0	0	0	N/A
+
+
+
+Transporters
+Transporter	Product	Most Recent for Property
+
+
+Points of Disposition
+ID	Type	Description	Pool(s)
+513050	Water		[33725] INDIAN DRAW;DELAWARE, EAST
+Quick Links
+General Well Information
+History
+Comments
+Operator Ä
+Pits
+Casing
+Well Completions
+Financial Assurance
+Compliance
+Reported Releases
+Orders
+Production
+Transporters
+Points of Disposition
+Action Status Ä
+Associated Images
+Well Files (35)
+Well Logs (2)
+Well Admin Orders
+New Searches
+New Facility Search Ä
+New Incident Search Ä
+New Operator Search Ä
+New Pit Search Ä
+New Well Search Ä
+New Mexico Energy, Minerals and Natural Resources Department | Copyright 2012
+1220 South St. Francis Drive | Santa Fe, NM 87505 | P: (505) 476-3200 | F: (505) 476-3220
+EMNRD Home
+OCD Main Page
+OCD Rules
+Help
