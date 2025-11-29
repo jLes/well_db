@@ -1,0 +1,203 @@
+# API: 30-015-25614
+# Fetched: 2025-11-29T00:16:48.610516
+# Total size: 3,579 bytes
+# Showing: 3,579 bytes
+#===============================================================================
+
+Welcome to OCD Permitting
+SIGN-IN
+HELP
+Searches
+Cases & Hearings
+Facilities
+Incidents
+Operators
+Pits & Containments
+Spills (To Be Removed)
+Wells
+Operator Data
+Action Status
+C-115 Reports
+Compliance
+Natural Gas Waste Reports
+Production Reports
+Water Use Reports
+Weekly Activity
+Well Information
+Hearing Fee Application
+Request for Hearing
+Request for Continuance
+OCD Permitting
+Home
+Searches
+Wells
+Well Details
+30-015-25614 PRE-ONGARD WELL #001 [30041]
+General Well Information
+Operator: [214263] PRE-ONGARD WELL OPERATOR
+Status: Plugged, Site Released
+Well Type: Oil
+Work Type: New
+
+Direction:
+Multi-Lateral: No
+Mineral Owner: State
+Surface Owner: State
+Surface Location: M-19-16S-29E      230 FSL      330 FWL
+Lat/Long: 32.9006767,-104.1202087 NAD83
+
+GL Elevation:
+KB Elevation:
+DF Elevation:
+
+Sing/Mult Compl:
+Potash Waiver: False
+
+
+Pre-ONGARD Information
+Original Well Name: DEPCO ST
+Original Operator Name: BEACH EXPL INC
+
+
+Proposed Formation and/or Notes
+BEACH EXPL INC /DEPCO ST
+
+
+Depths
+Proposed: 0
+Measured Vertical Depth: 0
+True Vertical Depth: 0
+Plugback Measured: 0
+
+
+Formation Tops
+Formation	Top	Producing	Method Obtained
+
+
+Event Dates
+Initial APD Approval: 01/01/1900
+Most Recent APD Approval: 01/01/1900
+APD Cancellation: 
+APD Extension Approval: 
+Spud: 01/01/1900
+Approved Temporary Abandonment: 
+Shut In: 
+Plug and Abandoned Intent Received: 
+Well Plugged: 01/01/1900
+Site Release: 
+Last Inspection: 
+
+Current APD Expiration: 01/01/1902
+
+
+Gas Capture Plan Received: 
+TA Expiration: 
+
+
+PNR Expiration: 
+Last MIT/BHT: 
+
+
+History
+Effective Date	Property	Well Number	Operator	C-101 Work Type	Well Type	Well Status	Apd Cancelled	Plug Date
+01/01/1900	[30041] PRE-ONGARD WELL	#001	[214263] PRE-ONGARD WELL OPERATOR	New	Oil	Plugged, Site Released		01/01/1900
+
+
+Comments
+
+
+
+
+Pits & Containments
+No Pits Found
+Id	Name	Rule	Status	(Capacity) Type	Registration	
+Inspection
+Before *
+	Earliest Effective
+Commencement	Last Effective
+Cessation	Inspection
+After *	Closure
+Report	Reclamation
+Report	Restoration
+Complete
+
+
+Casing
+
+No Casing Found
+
+
+
+Well Completions
+
+No Completions Found
+
+
+Financial Assurance
+Please login to review the financial assurance associated with this well.
+
+
+Compliance
+
+Note that Financial Assurance and Inactive Well Compliance are documented in separate reports (Inactive Well Report, Financial Assurance Report).
+
+Also note that some compliance issues are addressed at the operator level so not listed under each well.
+
+
+
+
+
+
+Orders
+Please login to review the orders associated with this well.
+
+
+Production / Injection
+
+The production & injection volumes are sourced from monthly production reports (C-115) submissions.
+
+Show All Production Export to Excel
+Earliest Production in OCD Records: Last
+  	Production	Injection
+Time Frame	Oil (BBLS)	Gas (MCF)	Water (BBLS)	Days P/I	Water (BBLS)	Co2 (MCF)	Gas (MCF)	Other	Pressure
+Grand Total:	0	0	0	0	0	0	0	0	N/A
+
+
+
+Transporters
+Transporter	Product	Most Recent for Property
+
+
+Points of Disposition
+ID	Type	Description	Pool(s)
+Quick Links
+General Well Information
+History
+Comments
+Operator Ä
+Pits
+Casing
+Well Completions
+Financial Assurance
+Compliance
+Orders
+Production
+Transporters
+Points of Disposition
+Action Status Ä
+Associated Images
+Well Files (11)
+Well Logs (2)
+Well Admin Orders
+New Searches
+New Facility Search Ä
+New Incident Search Ä
+New Operator Search Ä
+New Pit Search Ä
+New Well Search Ä
+New Mexico Energy, Minerals and Natural Resources Department | Copyright 2012
+1220 South St. Francis Drive | Santa Fe, NM 87505 | P: (505) 476-3200 | F: (505) 476-3220
+EMNRD Home
+OCD Main Page
+OCD Rules
+Help
