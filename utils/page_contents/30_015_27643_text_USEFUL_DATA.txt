@@ -1,0 +1,66 @@
+# API: 30-015-27643
+# Fetched: 2025-11-29T10:59:01.357128
+# Total size: 1,010 bytes
+# Showing: 1,010 bytes
+#===============================================================================
+
+General Well Information
+Operator: [6137] DEVON ENERGY PRODUCTION COMPANY, LP
+Status: Cancelled Apd
+Well Type: Oil
+Work Type: New
+
+Direction:
+Multi-Lateral: No
+Mineral Owner: Federal
+Surface Owner: Federal
+Surface Location: D-15-23S-31E      660 FNL      660 FWL
+Lat/Long: 32.3098563603055,-103.772094033724 NAD83
+
+GL Elevation: 3391
+KB Elevation:
+DF Elevation:
+
+Sing/Mult Compl: Single
+Potash Waiver: False
+
+
+Proposed Formation and/or Notes
+INGLE WELLS DELAWARE
+
+
+Depths
+Proposed: 8350
+Measured Vertical Depth: 0
+True Vertical Depth: 99999
+Plugback Measured: 0
+
+
+Formation Tops
+Formation	Top	Producing	Method Obtained
+
+
+Event Dates
+Initial APD Approval: 08/11/1993
+Most Recent APD Approval: 02/17/2004
+APD Cancellation: 02/17/2004
+APD Extension Approval: 
+Spud: 
+Approved Temporary Abandonment: 
+Shut In: 
+Plug and Abandoned Intent Received: 
+Well Plugged: 
+Site Release: 
+Last Inspection: 
+
+Current APD Expiration: 08/11/1995
+
+
+Gas Capture Plan Received: 
+TA Expiration: 
+
+
+PNR Expiration: 
+Last MIT/BHT: 
+
+

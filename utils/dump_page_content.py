@@ -13,6 +13,7 @@ Options:
     --kb N          Max text size (KB) of output
     --output DIR    Output directory (default: ./page_contents )
     --api API       Specific API number to fetch info for a single well, if exists
+    -c, --clip      Flag to clip the scraped return to useful sections, keyword-based
 """
 import sys
 import argparse
@@ -27,10 +28,13 @@ from playwright.async_api import async_playwright
 BASE_URL = "https://wwwapps.emnrd.nm.gov/OCD/OCDPermitting/Data/WellDetails.aspx"
 
 
-async def fetch_page_content(api: str) -> str:
+async def fetch_page_content(api: str, clip_to_section: bool=False) -> str:
     """
     Fetch page content for a single API with Playwright.
     
+    Options:
+        clip_to_section: Return only the data between two keyword sections
+
     Returns:
         text content from page innerText
     """
@@ -42,8 +46,25 @@ async def fetch_page_content(api: str) -> str:
 
         await page.goto(url, wait_until="domcontentloaded")
         await asyncio.sleep(1)
+        if clip_to_section:
+            print('Attempting to clip to relevant data')
+            # Attempt to extract just the desired sections from the scraped text
+            text_content = await page.evaluate('''() => {
+                const fullText = document.body.innerText;
+                const startIdx = fullText.indexOf('General Well Information');
+                if (startIdx === -1) return fullText.substring(0, 50000);
 
-        text_content = await page.evaluate('() => document.body.innerText')
+                const endMarkers = ['History', 'Comments', 'Pits & Containments'];
+                let endIdx = fullText.length;
+                for (const marker of endMarkers) {
+                    const idx = fullText.indexOf(marker, startIdx + 100);
+                    if (idx !== -1 && idx < endIdx) endIdx = idx;
+                }
+                return fullText.substring(startIdx, endIdx);
+            }''')
+        else:
+             print('Returning full scraped text')
+             text_content = await page.evaluate('() => document.body.innerText')
         await browser.close()
 
     return text_content
@@ -77,7 +98,9 @@ async def main():
                         help='Output directory')
     parser.add_argument('--api', type=str, default=None,
                         help='Specific API number to fetch')
-
+    parser.add_argument('-c', '--clip', action='store_true',
+                        help='Flag to specify clipping the scraped return to relevant data only')
+    
     args = parser.parse_args()
 
     print(args.csv)
@@ -86,6 +109,7 @@ async def main():
     print(f"CSV file {"exists" if csv_exists else "does not exist"}")
 
     if not csv_exists:
+        print('Invalid CSV file specified . . . Exiting')
         return
     
     all_apis = load_api_numbers(args.csv)
@@ -102,7 +126,8 @@ async def main():
 
     print(f"Fetching {len(apis_to_fetch)} API(s)...")
     print(f"Output directory: {args.output}")
-    print(f"Max size per file: {args.kb} KB \n")
+    print(f"Max size per file: {args.kb} KB ")
+    print(f"Clip scraped date to relevant info only: {args.clip}")
 
     max_bytes = args.kb * 1024
 
@@ -113,7 +138,7 @@ async def main():
             print("Invalid API number . . . Skipping")
             continue
         try:
-            text_content = await fetch_page_content(api)
+            text_content = await fetch_page_content(api, args.clip)
 
             text_truncated = text_content[:max_bytes]
 

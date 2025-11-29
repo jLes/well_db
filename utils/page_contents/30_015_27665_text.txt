@@ -1,7 +1,7 @@
-# API: 30-015-25614
-# Fetched: 2025-11-29T00:16:48.610516
-# Total size: 3,579 bytes
-# Showing: 3,579 bytes
+# API: 30-015-27665
+# Fetched: 2025-11-29T10:58:56.594810
+# Total size: 3,498 bytes
+# Showing: 3,498 bytes
 #===============================================================================
 
 Welcome to OCD Permitting
@@ -32,41 +32,36 @@ Home
 Searches
 Wells
 Well Details
-30-015-25614 PRE-ONGARD WELL #001 [30041]
+30-015-27665 SOHACK 33 FED #001 [13071]
 General Well Information
-Operator: [214263] PRE-ONGARD WELL OPERATOR
-Status: Plugged, Site Released
+Operator: [1801] BEPCO, LP
+Status: Cancelled Apd
 Well Type: Oil
 Work Type: New
 
 Direction:
 Multi-Lateral: No
-Mineral Owner: State
-Surface Owner: State
-Surface Location: M-19-16S-29E      230 FSL      330 FWL
-Lat/Long: 32.9006767,-104.1202087 NAD83
+Mineral Owner: Federal
+Surface Owner: Federal
+Surface Location: N-33-19S-31E      660 FSL      2080 FWL
+Lat/Long: 32.611445270948,-103.875982929982 NAD83
 
-GL Elevation:
+GL Elevation: 3482
 KB Elevation:
 DF Elevation:
 
-Sing/Mult Compl:
+Sing/Mult Compl: Single
 Potash Waiver: False
 
 
-Pre-ONGARD Information
-Original Well Name: DEPCO ST
-Original Operator Name: BEACH EXPL INC
-
-
 Proposed Formation and/or Notes
-BEACH EXPL INC /DEPCO ST
+STRAWN
 
 
 Depths
-Proposed: 0
+Proposed: 11800
 Measured Vertical Depth: 0
-True Vertical Depth: 0
+True Vertical Depth: 99999
 Plugback Measured: 0
 
 
@@ -75,19 +70,19 @@ Formation	Top	Producing	Method Obtained
 
 
 Event Dates
-Initial APD Approval: 01/01/1900
-Most Recent APD Approval: 01/01/1900
-APD Cancellation: 
+Initial APD Approval: 08/27/1993
+Most Recent APD Approval: 11/07/1994
+APD Cancellation: 11/07/1994
 APD Extension Approval: 
-Spud: 01/01/1900
+Spud: 
 Approved Temporary Abandonment: 
 Shut In: 
 Plug and Abandoned Intent Received: 
-Well Plugged: 01/01/1900
+Well Plugged: 
 Site Release: 
 Last Inspection: 
 
-Current APD Expiration: 01/01/1902
+Current APD Expiration: 08/27/1995
 
 
 Gas Capture Plan Received: 
@@ -100,7 +95,8 @@ Last MIT/BHT:
 
 History
 Effective Date	Property	Well Number	Operator	C-101 Work Type	Well Type	Well Status	Apd Cancelled	Plug Date
-01/01/1900	[30041] PRE-ONGARD WELL	#001	[214263] PRE-ONGARD WELL OPERATOR	New	Oil	Plugged, Site Released		01/01/1900
+11/07/1994	[13071] SOHACK 33 FED	#001	[1801] BEPCO, LP	New	Oil	Cancelled Apd	Yes	
+08/27/1993	[13071] SOHACK 33 FED	#001	[1801] BEPCO, LP	New	Oil	New		
 
 
 Comments
@@ -186,8 +182,8 @@ Transporters
 Points of Disposition
 Action Status Ä
 Associated Images
-Well Files (11)
-Well Logs (2)
+Well Files (3)
+Well Logs (0)
 Well Admin Orders
 New Searches
 New Facility Search Ä
