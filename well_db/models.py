@@ -117,3 +117,90 @@ class WellData(Base):
             "longitude": self.longitude,
             "crs": self.crs,
         }
+
+
+# Pydantic schemas for API responses
+class WellDataSchema(BaseModel):
+    """Response schema for well_db data.
+
+    Field order matches the assignment PDF specification.
+    """
+
+    # Fields in order per PDF spec
+    api: str
+    operator: Optional[str] = None
+    status: Optional[str] = None
+    well_type: Optional[str] = None
+    work_type: Optional[str] = None
+    directional_status: Optional[str] = None
+    multi_lateral: Optional[str] = None
+    mineral_owner: Optional[str] = None
+    surface_owner: Optional[str] = None
+    surface_location: Optional[str] = None
+    gl_elevation: Optional[str] = None
+    kb_elevation: Optional[str] = None
+    df_elevation: Optional[str] = None
+    single_multi_completion: Optional[str] = None
+    potash_waiver: Optional[str] = None
+    spud_date: Optional[str] = None
+    last_inspection: Optional[str] = None
+    tvd: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    crs: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PolygonSearchRequest(BaseModel):
+    """Request schema for polygon search."""
+
+    polygon: list[tuple[float, float]] = Field(
+        ...,
+        description="List of (latitude, longitude) pairs defining the polygon vertices",
+        min_length=3
+    )
+
+
+class PolygonSearchResponse(BaseModel):
+    """Response schema for polygon search."""
+
+    api_numbers: list[str]
+    count: int
+
+
+class DatabaseStatusResponse(BaseModel):
+    """Response schema for database status."""
+
+    db_exists: bool
+    db_path: str
+    row_count: int
+    csv_count: int
+    missing_count: int
+    is_complete: bool
+    columns: list[str]
+    unique_apis: bool
+
+
+class ScrapeStatusResponse(BaseModel):
+    """Response schema for scrape job status."""
+
+    job_id: str
+    status: str  # "idle", "running", "completed", "failed"
+    total: int
+    completed: int
+    failed: int
+    progress_percent: float
+    current_api: Optional[str] = None
+    errors: list[str] = []
+    started_at: Optional[str] = None
+    finished_at: Optional[str] = None
+
+
+class ScrapeStartResponse(BaseModel):
+    """Response when starting a scrape job."""
+
+    job_id: str
+    message: str
+    apis_to_scrape: int

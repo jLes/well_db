@@ -1,9 +1,31 @@
 #!/usr/bin/env python3
-"""Entrypoint for the well_db package."""
+"""Entrypoint for the well_db package.
+
+This module provides a simple command-line interface for:
+  - Starting the REST API server
+  - Running the database scraper
+  - Querying wells within a geopolygon
+  - Starting Docker containers if host-side python env is not desired
+
+Usage:
+    python -m well_db serve              # Start the API server
+    python -m well_db scrape <csv_file>  # Scrape wells and populate DB
+    python -m well_db polygon <coords>   # Query polygon, save to CSV
+    python -m well_db docker [up|down]   # Manage Docker containers
+
+Examples:
+    uv run python -m well_db serve --port 8080
+    uv run python -m well_db scrape ./resources/apis_pythondev_test.csv
+    uv run python -m well_db polygon test -o results.csv ## Use test polygon from assignment
+    uv run python -m well_db delete --yes
+"""
+
 from __future__ import annotations
 
 import argparse
 import asyncio
+import csv
+import subprocess
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -14,6 +36,23 @@ if TYPE_CHECKING:
 def get_project_root() -> Path:
     """Get the root directory of the project."""
     return Path(__file__).parent.parent.resolve()
+
+def cmd_serve(args: Namespace) -> int:
+    """Start the FastAPI server."""
+    import uvicorn
+
+    from well_db.api import app
+    from well_db.database import init_db
+
+    # Ensure database is initialized
+    init_db()
+
+    print(f"Starting WellDB API server at http://{args.host}:{args.port}")
+    print(f"API documentation: http://{args.host}:{args.port}/docs")
+    print(f"Database status:   http://{args.host}:{args.port}/db/status")
+
+    uvicorn.run(app, host=args.host, port=args.port)
+    return 0
 
 
 def cmd_scrape(args: Namespace) -> int:
@@ -123,26 +162,195 @@ def cmd_delete(args: Namespace) -> int:
     return 0
 
 
+def cmd_polygon(args: Namespace) -> int:
+    """Query wells within a polygon and save results to CSV."""
+    import geopandas as gpd
+    from shapely.geometry import Point, Polygon
+
+    from well_db.database import get_db_session
+    from well_db.models import WellData
+
+    # Parse coordinates
+    if args.coords == "test":
+        # Test polygon from the assignment PDF
+        points = [
+            (32.81, -104.19),
+            (32.66, -104.32),
+            (32.54, -104.24),
+            (32.50, -104.03),
+            (32.73, -104.01),
+            (32.79, -103.91),
+            (32.84, -104.05),
+            (32.81, -104.19),
+        ]
+        print("Using test polygon from assignment")
+    else:
+        import re
+        try:
+            # Parse format: [(lat,lon),(lat,lon),...]
+            pattern = r'\(([^)]+)\)'
+            matches = re.findall(pattern, args.coords)
+
+            if not matches:
+                raise ValueError("No coordinate pairs found")
+
+            points = []
+            for match in matches:
+                parts = match.split(',')
+                if len(parts) != 2:
+                    raise ValueError(f"Invalid coordinate pair: ({match})")
+                lat, lon = float(parts[0].strip()), float(parts[1].strip())
+                points.append((lat, lon))
+
+            if len(points) < 3:
+                print("Error: Polygon must have at least 3 points", file=sys.stderr)
+                return 1
+
+        except ValueError as e:
+            print(f"Error parsing coordinates: {e}", file=sys.stderr)
+            print("Expected format: [(lat1,lon1),(lat2,lon2),(lat3,lon3),...]")
+            return 1
+
+    db = get_db_session()
+
+    # Bounding box pre-filter for performance
+    lats = [p[0] for p in points]
+    lons = [p[1] for p in points]
+    min_lat, max_lat = min(lats), max(lats)
+    min_lon, max_lon = min(lons), max(lons)
+
+    candidates = db.query(WellData).filter(
+        WellData.latitude.isnot(None),
+        WellData.longitude.isnot(None),
+        WellData.latitude.between(min_lat, max_lat),
+        WellData.longitude.between(min_lon, max_lon),
+    ).all()
+
+    db.close()
+
+    if not candidates:
+        print("No wells found in bounding box")
+        return 0
+
+    # Create polygon in proper GIS format: (lon, lat) for x, y
+    # Input is (lat, lon), so swap for Shapely/GeoPandas
+    polygon_coords_xy = [(lon, lat) for lat, lon in points]
+    search_polygon = Polygon(polygon_coords_xy)
+
+    # Create GeoDataFrame for polygon with WGS84 CRS
+    polygon_gdf = gpd.GeoDataFrame(
+        geometry=[search_polygon],
+        crs="EPSG:4326"  # WGS84 - standard lat/lon CRS
+    )
+
+    # Create GeoDataFrame for well points
+    well_points = [Point(well.longitude, well.latitude) for well in candidates]
+    well_apis = [well.api for well in candidates]
+
+    wells_gdf = gpd.GeoDataFrame(
+        {"api": well_apis},
+        geometry=well_points,
+        crs="EPSG:4326"
+    )
+
+    # Spatial join to find points within polygon
+    matches = gpd.sjoin(wells_gdf, polygon_gdf, predicate="within")
+    matching_apis = sorted(matches["api"].tolist())
+
+    # Write results to CSV
+    output_path = Path(args.output)
+    with open(output_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["api"])
+        for api in matching_apis:
+            writer.writerow([api])
+
+    print(f"Found {len(matching_apis)} wells in polygon")
+    print(f"Results saved to: {output_path}")
+    return 0
+
+
+def cmd_docker(args: Namespace) -> int:
+    """Manage Docker containers."""
+    project_root = get_project_root()
+    compose_file = project_root / "docker-compose.yml"
+
+    if not compose_file.exists():
+        print(f"Error: docker-compose.yml not found at {compose_file}", file=sys.stderr)
+        return 1
+
+    action = args.action
+
+    if action == "up":
+        print("Starting Docker containers...")
+        cmd = ["docker", "compose", "-f", str(compose_file), "up", "-d"]
+        if args.build:
+            cmd.append("--build")
+
+    elif action == "down":
+        print("Stopping Docker containers...")
+        cmd = ["docker", "compose", "-f", str(compose_file), "down"]
+
+    elif action == "logs":
+        cmd = ["docker", "compose", "-f", str(compose_file), "logs", "-f"]
+
+    elif action == "scrape":
+        print("Running scraper in Docker...")
+        cmd = ["docker", "compose", "-f", str(compose_file), "run", "--rm", "scrape"]
+
+    elif action == "status":
+        cmd = ["docker", "compose", "-f", str(compose_file), "ps"]
+
+    else:
+        print(f"Unknown docker action: {action}", file=sys.stderr)
+        return 1
+
+    try:
+        result = subprocess.run(cmd, check=False)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: Docker is not installed or not in PATH", file=sys.stderr)
+        return 1
+    
+
 def create_parser() -> argparse.ArgumentParser:
-    """Create an argument parser with subcommands for poulating the database. Eventually can provide access to spooling up the API server, and maybe a Docker runtime."""
+    """Create an argument parser with subcommands for populating the database. Eventually can provide access to spooling up the API server, and maybe a Docker runtime."""
     parser = argparse.ArgumentParser(
         prog="well_db",
         description="WellDB - Scrape and serve New Mexico oil and gas well data.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  well_db serve                   Start the API server
+  well_db serve --port 8080       Start on custom port
   well_db scrape                  Scrape wells using default CSV
-  well_db scrape custom_apis.csv  Scrape wells from custom CSV
   well_db scrape --missing        Scrape only wells not already in database
-  well_db scrape --force          Re-scrape all wells (upserts existing)
-  well_db scrape -c 3             Scrape with 5 concurrent requests
-  well_db delete                  Delete the database file (with prompt)
-  well_db delete -y               Delete the database file (no prompt)
+  well_db scrape -c 3             Scrape with 3 concurrent requests
+  well_db polygon test            Query test polygon, save to CSV
+  well_db delete -y               Delete the database file
+  well_db docker up               Start Docker containers
         """,
           )
     
-    # Anticipating adding subcommands for things like "serve" and others, so need subparsers
     subparsers = parser.add_subparsers(dest="command", required=True, help="Command")
+
+    # Serve subcommand
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="Start the FastAPI server",
+        description="Start the REST API server for querying well data.",
+    )
+    serve_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to (default: 127.0.0.1)",
+    )
+    serve_parser.add_argument(
+        "--port", "-p",
+        type=int,
+        default=8000,
+        help="Port to bind to (default: 8000)",
+    )
 
     # Scrape subcommand
     scrape_parser = subparsers.add_parser(
@@ -185,6 +393,39 @@ Examples:
         help="Skip confirmation prompt",
     )
 
+    # Polygon subcommand
+    polygon_parser = subparsers.add_parser(
+        "polygon",
+        help="Query wells within a polygon",
+        description="Find wells within a polygon and save results to CSV.",
+    )
+    polygon_parser.add_argument(
+        "coords",
+        help="Polygon coordinates as '[(lat1,lon1),(lat2,lon2),...]' or 'test' for assignment polygon",
+    )
+    polygon_parser.add_argument(
+        "--output", "-o",
+        default="polygon_results.csv",
+        help="Output CSV file path (default: polygon_results.csv)",
+    )
+
+    # Docker subcommand
+    docker_parser = subparsers.add_parser(
+        "docker",
+        help="Manage Docker containers",
+        description="Start, stop, or manage Docker containers for WellDB.",
+    )
+    docker_parser.add_argument(
+        "action",
+        choices=["up", "down", "logs", "scrape", "status"],
+        help="Docker action to perform",
+    )
+    docker_parser.add_argument(
+        "--build",
+        action="store_true",
+        help="Rebuild images before starting (only for 'up')",
+    )
+
     return parser
 
 def main() -> int:
@@ -193,8 +434,11 @@ def main() -> int:
     args = parser.parse_args()
 
     commands = {
+        "serve": cmd_serve,
         "scrape": cmd_scrape,
         "delete": cmd_delete,
+        "polygon": cmd_polygon,
+        "docker": cmd_docker,
     }
 
     handler = commands.get(args.command)

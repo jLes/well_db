@@ -1,0 +1,47 @@
+# WellDB Docker Compose
+#
+# Usage:
+#   docker compose up              # Start API server
+#   docker compose up --build      # Rebuild and start
+#   docker compose run scrape      # Run scraper for missing APIs
+#   docker compose run polygon     # Generate polygon CSV
+#   docker compose down            # Stop all containers
+
+services:
+  # API server (default service)
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist database
+      - ./api_well_data.db:/app/api_well_data.db
+      # Mount CSV for scraping via API endpoint
+      - ./resources/apis_pythondev_test.csv:/app/resources/apis_pythondev_test.csv:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Scraper service (run manually)
+  scrape:
+    build: .
+    volumes:
+      - ./api_well_data.db:/app/api_well_data.db
+      - ./resources/apis_pythondev_test.csv:/app/resources/apis_pythondev_test.csv:ro
+    command: python -m well_db scrape /app/resources/apis_pythondev_test.csv --missing
+    profiles:
+      - tools  # Does not start with `docker compose up`
+
+  # Polygon query service (run manually)
+  polygon:
+    build: .
+    volumes:
+      - ./api_well_data.db:/app/api_well_data.db
+      - ./polygon_results.csv:/app/polygon_results.csv
+    command: python -m well_db polygon test --output /app/polygon_results.csv
+    profiles:
+      - tools  # Does not start with `docker compose up`

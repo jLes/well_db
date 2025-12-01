@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+.eggs
+dist
+build
+
+# Virtual environments
+.venv
+venv
+env
+.conda
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Data files (mount as volumes instead)
+*.db
+*.csv
+
+# Docs
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
