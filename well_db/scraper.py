@@ -2,14 +2,14 @@
 Web scraper for New Mexico Oil Conservation Division well data.
 Uses Playwright to handle server-side rendered content.
 """
-import sys
 import csv
 import random
 import re
 import logging
 import asyncio
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable, Any
+from dataclasses import dataclass
 
 from playwright.async_api import (
     async_playwright,
@@ -19,7 +19,7 @@ from playwright.async_api import (
 )
 
 #Instead of hardcoding field mappings here, I define them once in models.py and re-use where able
-from well_db.models import WEBPAGE_FIELD_MAPPINGS
+from well_db.models import WEBPAGE_FIELD_MAPPINGS, DEFAULT_CSV_PATH
 
 # Set up logging
 logging.basicConfig(
@@ -30,11 +30,19 @@ logger=logging.getLogger(__name__)
 
 # Constants
 BASE_URL = "https://wwwapps.emnrd.nm.gov/OCD/OCDPermitting/Data/WellDetails.aspx"
-DEFAULT_TIMEOUT = 15000  # 15 seconds
-CRAWL_DELAY = 2.5  # Base seconds between requests - no rate limiting stated, but just in case
-CRAWL_DELAY_JITTER = 1.0  # Random jitter added to delay
+DEFAULT_TIMEOUT = 25000  # 25 seconds
 MAX_RETRIES = 3  # Max retries per well on failure
 RETRY_BACKOFF = 3  # Base seconds for exponential backoff
+DEFAULT_CONCURRENCY = 3  # Default number of concurrent requests (conservative)
+REQUEST_DELAY = 1.5  # Minimum seconds between requests per worker
+
+
+@dataclass
+class ScrapeResult:
+    """Result of a batch scrape operation."""
+    success_count: int
+    fail_count: int
+    failed_apis: list[str]
 
 class WellScraper:
     """Scraper for NM OCD well data using Playwright."""
@@ -79,25 +87,36 @@ class WellScraper:
             logger.debug(f"Fetching: {url}")
 
             await page.goto(url, wait_until="domcontentloaded", timeout=DEFAULT_TIMEOUT)
-            await asyncio.sleep(1)  # Brief wait for server-side rendered content
 
-            # Extract text content and fields using the same methods explored in /utils
-            # Introduce helper methods for separation of returned content into fields
-            text_content = await self._extract_page_text(page)
-
-            # Check if the page content loads correctly
-            # Repeated calls were returning empty and resulting in incorrect field extraction
-            if "General Well Information" not in text_content:
-                logger.warning(f"Page content missing expected sections for {api_number}")
-                logger.debug(f"Content preview: {text_content[:200]}")
+            # Wait for the General Well Information section to render
+            # This new approach avoids the fixed delay approach, and having to wait for the full page text.
+            try:
+                await page.wait_for_selector("#general_information", timeout=DEFAULT_TIMEOUT)
+            except PlaywrightTimeout:
+                logger.debug(f"Timeout waiting for #general_information for {api_number}")
                 if retry_count < MAX_RETRIES:
                     backoff = RETRY_BACKOFF * (2 ** retry_count)
-                    logger.info(f"Retrying {api_number} in {backoff}s (invalid content)...")
+                    logger.debug(f"Retrying {api_number} in {backoff}s (selector timeout)...")
                     await asyncio.sleep(backoff)
                     await page.close()
                     await context.close()
                     return await self.scrape_well(api_number, retry_count + 1)
-                logger.error(f"Failed to get valid content for {api_number} after {MAX_RETRIES} retries")
+                logger.error(f"Failed to find content for {api_number} after {MAX_RETRIES} retries")
+                return None
+
+            # Extract text from just the General Well Information fieldset
+            text_content = await self._extract_well_info_section(page)
+
+            if not text_content:
+                logger.debug(f"Empty content extracted for {api_number}")
+                if retry_count < MAX_RETRIES:
+                    backoff = RETRY_BACKOFF * (2 ** retry_count)
+                    logger.debug(f"Retrying {api_number} in {backoff}s (empty content)...")
+                    await asyncio.sleep(backoff)
+                    await page.close()
+                    await context.close()
+                    return await self.scrape_well(api_number, retry_count + 1)
+                logger.error(f"Failed to get content for {api_number} after {MAX_RETRIES} retries")
                 return None
 
             well_data = self._extract_fields(text_content, api_number)
@@ -106,11 +125,11 @@ class WellScraper:
 
         except PlaywrightTimeout as e:
             # Timeout errors are good candidates for retry
-            logger.warning(f"Timeout scraping {api_number} (attempt {retry_count + 1}): {e}")
+            logger.debug(f"Timeout scraping {api_number} (attempt {retry_count + 1}): {e}")
 
             if retry_count < MAX_RETRIES:
                 backoff = RETRY_BACKOFF * (2 ** retry_count)
-                logger.info(f"Retrying {api_number} in {backoff}s...")
+                logger.debug(f"Retrying {api_number} in {backoff}s...")
                 await asyncio.sleep(backoff)
                 return await self.scrape_well(api_number, retry_count + 1)
 
@@ -119,11 +138,11 @@ class WellScraper:
 
         except PlaywrightError as e:
             # Other Playwright errors (navigation failed, browser crashed, etc.)
-            logger.warning(f"Playwright error scraping {api_number} (attempt {retry_count + 1}): {e}")
+            logger.debug(f"Playwright error scraping {api_number} (attempt {retry_count + 1}): {e}")
 
             if retry_count < MAX_RETRIES:
                 backoff = RETRY_BACKOFF * (2 ** retry_count)
-                logger.info(f"Retrying {api_number} in {backoff}s...")
+                logger.debug(f"Retrying {api_number} in {backoff}s...")
                 await asyncio.sleep(backoff)
                 return await self.scrape_well(api_number, retry_count + 1)
 
@@ -139,25 +158,15 @@ class WellScraper:
             await page.close()
             await context.close()
 
-    async def _extract_page_text(self, page) -> str:
-        """Extract page text content, clipped to General Well Information section."""
+    async def _extract_well_info_section(self, page) -> str:
+        """Extract text content from the General Well Information fieldset only."""
         try:
-            text_content = await page.evaluate('''() => {
-                const fullText = document.body.innerText;
-                const startIdx = fullText.indexOf('General Well Information');
-                if (startIdx === -1) return fullText.substring(0, 50000);
-
-                const endMarkers = ['History', 'Comments', 'Pits & Containments'];
-                let endIdx = fullText.length;
-                for (const marker of endMarkers) {
-                    const idx = fullText.indexOf(marker, startIdx + 100);
-                    if (idx !== -1 && idx < endIdx) endIdx = idx;
-                }
-                return fullText.substring(startIdx, endIdx);
-            }''')
+            # Get the first fieldset.data_container which contains General Well Information
+            fieldset = page.locator("fieldset.data_container").first
+            text_content = await fieldset.inner_text()
             return text_content or ""
         except Exception as e:
-            logger.warning(f"Could not extract page text: {e}")
+            logger.warning(f"Could not extract well info section: {e}")
             return ""
 
     def _extract_fields(self, text_content: str, api_number: str) -> dict:
@@ -340,12 +349,114 @@ async def scrape_from_csv(
             if progress_callback:
                 progress_callback(i + 1, len(api_numbers))
 
-            # Respectful delay with jitter (looks more human, avoids detection)
-            delay = CRAWL_DELAY + random.uniform(0, CRAWL_DELAY_JITTER)
-            await asyncio.sleep(delay)
+            # Respectful delay with jitter
+            await asyncio.sleep(REQUEST_DELAY + random.uniform(0, 0.5))
 
     logger.info(f"Successfully scraped {len(results)}/{len(api_numbers)} wells")
     return results
+
+
+async def scrape_batch(
+    api_numbers: list[str],
+    concurrency: int = DEFAULT_CONCURRENCY,
+    on_progress: Optional[Callable[[str, int, int], None]] = None,
+    on_result: Optional[Callable[[dict], None]] = None,
+    on_error: Optional[Callable[[str, str], None]] = None,
+) -> ScrapeResult:
+    """
+    Scrape multiple wells using a worker pool pattern.
+
+    Uses an async queue with N=concurrency workers, each processing one request at a time
+    with a delay between requests to avoid overwhelming the server.
+
+    Args:
+        api_numbers: List of API numbers to scrape
+        concurrency: Number of worker tasks (default: 3)
+        on_progress: Callback(api, current, total) called when a scrape completes
+        on_result: Callback(well_data) called with successful scrape data
+        on_error: Callback(api, error_msg) called on scrape failure
+
+    Returns:
+        ScrapeResult with success/fail counts and list of failed APIs
+    """
+    if not api_numbers:
+        return ScrapeResult(success_count=0, fail_count=0, failed_apis=[])
+
+    queue: asyncio.Queue[str] = asyncio.Queue()
+    success_count = 0
+    fail_count = 0
+    failed_apis: list[str] = []
+    completed = 0
+    total = len(api_numbers)
+    lock = asyncio.Lock()  # Protect shared counters
+
+    # Populate the queue
+    for api in api_numbers:
+        await queue.put(api)
+
+    async def worker(scraper: WellScraper, worker_id: int) -> None:
+        """Worker that processes APIs from the queue."""
+        nonlocal success_count, fail_count, completed
+
+        while True:
+            try:
+                # Get next API from queue (non-blocking check if empty)
+                api = queue.get_nowait()
+            except asyncio.QueueEmpty:
+                return  # No more work
+
+            try:
+                well_data = await scraper.scrape_well(api)
+
+                async with lock:
+                    completed += 1
+                    if well_data:
+                        success_count += 1
+                        if on_result:
+                            on_result(well_data)
+                    else:
+                        fail_count += 1
+                        failed_apis.append(api)
+                        if on_error:
+                            on_error(api, "No data returned")
+
+                    if on_progress:
+                        on_progress(api, completed, total)
+
+            except Exception as e:
+                async with lock:
+                    completed += 1
+                    fail_count += 1
+                    failed_apis.append(api)
+                    if on_error:
+                        on_error(api, str(e))
+                    if on_progress:
+                        on_progress(api, completed, total)
+
+            finally:
+                queue.task_done()
+
+            # Delay before next request, to account for any server-side rate limiting
+            await asyncio.sleep(REQUEST_DELAY + random.uniform(0, 0.5))
+
+    logger.info(f"Starting batch scrape of {total} APIs with {concurrency} workers")
+
+    async with WellScraper(headless=True) as scraper:
+        # Stagger worker starts to avoid initial burst
+        workers = []
+        for i in range(concurrency):
+            await asyncio.sleep(0.5)  # Stagger each worker start by 0.5s
+            workers.append(asyncio.create_task(worker(scraper, i)))
+
+        # Wait for all workers to complete
+        await asyncio.gather(*workers)
+
+    logger.info(f"Batch scrape complete: {success_count} succeeded, {fail_count} failed")
+    return ScrapeResult(
+        success_count=success_count,
+        fail_count=fail_count,
+        failed_apis=failed_apis,
+    )
 
 
 ### Constants and helper functions for standalone testing
@@ -353,14 +464,11 @@ async def scrape_from_csv(
 # API number format: XX-XXX-XXXXX (e.g., 30-015-25327)
 API_PATTERN = re.compile(r"^\d{2}-\d{3}-\d{5}$")
 
-# Default CSV path for loading known API numbers
-DEFAULT_CSV_PATH = Path(__file__).parent.parent / "resources" / "apis_pythondev_test.csv"
-
-
 def is_valid_api_format(api: str) -> bool:
     """Check if the API number matches the expected format (XX-XXX-XXXXX)."""
     return bool(API_PATTERN.match(api))
 
+# DEFAULT_CSV_PATH is imported from models.py for convenience here . . . 
 def get_random_api(csv_path: Path = DEFAULT_CSV_PATH) -> Optional[str]:
     """Get a random API number from the CSV file."""
     api_numbers = load_api_numbers_from_csv(csv_path)
